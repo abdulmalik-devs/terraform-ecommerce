@@ -13,7 +13,7 @@ jobs:
   provision-infra:
     runs-on: ubuntu-latest
     outputs:
-      CLIENT_ADMIN_IP: ${{ steps.set-ip.outputs.client }}
+      CLIENT_IP: ${{ steps.set-ip.outputs.client }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -47,7 +47,7 @@ jobs:
       - name: SSH to Client-Admin in AZ1
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ steps.set-ip.outputs.client }}
+          host: ${{ env.CLIENT_IP }}
           username: ubuntu
           key: ${{ env.AWS_PRIVATE_KEY }}
           envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
