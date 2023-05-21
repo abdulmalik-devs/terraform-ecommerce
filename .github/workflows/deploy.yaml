@@ -47,11 +47,11 @@ jobs:
         uses: actions/checkout@v3
       - name: Set IP env variable
         run: |
-          echo CLIENT_IP ${{needs.provision-infra.outputs.CLIENT_IP}} >> $GITHUB_ENV
+          echo CLIENT_IP=${{needs.provision-infra.outputs.CLIENT_IP}} >> $GITHUB_ENV
       - name: SSH to Client-Admin
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ needs.provision-infra.outputs.CLIENT_IP }}
+          host: ${{ env.CLIENT_IP }}
           username: ubuntu
           key: ${{ env.AWS_PRIVATE_KEY }}
           envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
