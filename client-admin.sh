@@ -37,7 +37,7 @@ echo "******************************************"
 echo "Performing the following actions for Client"
 echo "******************************************"
 
-cd /home/ubuntu
+cd
 sudo rm -rf full-ecommerce || true
 sudo git clone https://github.com/abdulmalik-devs/full-ecommerce.git
 cd full-ecommerce/
