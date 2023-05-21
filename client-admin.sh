@@ -37,14 +37,14 @@ echo "******************************************"
 echo "Performing the following actions for Client"
 echo "******************************************"
 
-cd
+sudo cd
 sudo rm -rf full-ecommerce || true
 sudo git clone https://github.com/abdulmalik-devs/mern-ecommerce-project.git
-cd mern-ecommerce-project/
-cd web_panel
+sudo cd mern-ecommerce-project/
+sudo cd web_panel
 sudo rm -rf build
-npm install
-npm run build
+sudo npm install
+sudo npm run build
 sudo pm2 delete react-build || true
 
 # Create a new Nginx site configuration file
@@ -92,12 +92,12 @@ echo "******************************************"
 echo "Performing the following actions for Admin"
 echo "******************************************"
 
-cd /home/ubuntu
-cd mern-ecommerce-project/
-cd web_admin
+sudo cd /home/ubuntu
+sudo cd mern-ecommerce-project/
+sudo cd web_admin
 sudo rm -rf build
-npm install
-npm run build
+sudo npm install
+sudo npm run build
 sudo pm2 delete react-admin || true
 sudo pm2 serve build/ 3001 -f --name "admin-server" --spa
 

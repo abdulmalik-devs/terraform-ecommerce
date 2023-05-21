@@ -33,29 +33,32 @@ jobs:
         run: terraform plan
       - name: Terraform Apply
         run: terraform apply --auto-approve
-      - name: Set outputs
-        id: set-ip
-        run: |
-          echo "::set-output name=client::$(terraform output client_admin_ip)"
-        working-directory: ./
+      - name: Terraform Destroy
+        run: terraform destroy --auto-approve
 
-  deploy-client:
-    runs-on: ubuntu-latest
-    needs: provision-infra
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set IP env variable
-        run: |
-          echo CLIENT_IP=${{ needs.provision-infra.outputs.CLIENT_IP }} >> $GITHUB_ENV
-      - name: SSH to Client-Admin
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.CLIENT_IP }}
-          username: ubuntu
-          key: ${{ env.AWS_PRIVATE_KEY }}
-          envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
-      - name: Run client-admin script
-        run: |
-          chmod +x client-admin.sh
-          ./client-admin.sh
+  #     - name: Set outputs
+  #       id: set-ip
+  #       run: |
+  #         echo "::set-output name=client::$(terraform output client_admin_ip)"
+  #       working-directory: ./
+
+  # deploy-client:
+  #   runs-on: ubuntu-latest
+  #   needs: provision-infra
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Set IP env variable
+  #       run: |
+  #         echo CLIENT_IP=${{ needs.provision-infra.outputs.CLIENT_IP }} >> $GITHUB_ENV
+  #     - name: SSH to Client-Admin
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ env.CLIENT_IP }}
+  #         username: ubuntu
+  #         key: ${{ env.AWS_PRIVATE_KEY }}
+  #         envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
+  #     - name: Run client-admin script
+  #       run: |
+  #         chmod +x client-admin.sh
+  #         ./client-admin.sh
