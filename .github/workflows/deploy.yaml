@@ -8,7 +8,7 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
-
+  AWS_REGION: us-east-1
 
 jobs:
   provision-infra:
@@ -18,30 +18,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_wrapper: false
-
       - name: Format Terraform code
         id: format
         run: terraform fmt
-
       - name: Terraform Init
         id: init
         run: terraform init
-
       - name: Terraform Plan
         id: plan
         run: terraform plan
-
       - name: Terraform Apply
         run: terraform apply --auto-approve
-      
       - name: Set outputs
         id: set-ip
-        run:  |-
+        run: |
           echo "::set-output name=client:$(terraform output client_admin_ip)"
         working-directory: ./
 
@@ -51,21 +45,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
       - name: Set IP env variable
-        run:  |-
-          echo CLIENT_IP=${{needs.provision-infra.outputs.CLIENT_IP}} >> $GITHUB_ENV
-
-
-      # - name: SSH to Client-Admin in AZ1
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ needs.provision-infra.outputs.CLIENT_IP }}
-      #     username: ubuntu
-      #     key: ${{ env.AWS_PRIVATE_KEY }}
-      #     envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
-
-      # - name: Run client-admin script
-      #   run:  |
-      #     chmod +x client-admin.sh
-      #     ./client-admin.sh
+        run: |
+          echo CLIENT_IP=${{ needs.provision-infra.outputs.CLIENT_IP }} >> $GITHUB_ENV
+      - name: SSH to Client-Admin in AZ1
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ needs.provision-infra.outputs.CLIENT_IP }}
+          username: ubuntu
+          key: ${{ env.AWS_PRIVATE_KEY }}
+          envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
+      - name: Run client-admin script
+        run: |
+          chmod +x client-admin.sh
+          ./client-admin.sh
