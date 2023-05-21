@@ -52,12 +52,13 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set IP env variable
-        run:  bash echo "CLIENT_IP=${{ needs.provision-infra.outputs.CLIENT_IP }}" >> $GITHUB_ENV
+        id: ip
+        run: echo CLIENT_IP=${{ needs.provision-infra.outputs.CLIENT_IP }} >> $GITHUB_ENV
 
       - name: SSH to Client-Admin in AZ1
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ env.CLIENT_IP }}
+          host: ${{ needs.provision-infra.outputs.CLIENT_IP }}
           username: ubuntu
           key: ${{ env.AWS_PRIVATE_KEY }}
           envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
