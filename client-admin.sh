@@ -39,13 +39,13 @@ echo "******************************************"
 
 cd
 sudo rm -rf full-ecommerce || true
-sudo git clone https://github.com/abdulmalik-devs/full-ecommerce.git
-cd full-ecommerce/
+sudo git clone https://github.com/abdulmalik-devs/mern-ecommerce-project.git
+cd mern-ecommerce-project/
 cd web_panel
-rm -rf build
+sudo rm -rf build
+npm install
 npm run build
 sudo pm2 delete react-build || true
-pm2 serve build/ 3000 -f --name "client-server" --spa
 
 # Create a new Nginx site configuration file
 sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
@@ -85,17 +85,23 @@ sudo nginx -t
 # Restart Nginx to apply the new configuration
 sudo systemctl restart nginx
 
+pm2 serve build/ 3000 -f --name "client-server" --spa
+
 
 echo "******************************************"
 echo "Performing the following actions for Admin"
 echo "******************************************"
 
 cd /home/ubuntu
-cd full-ecommerce/
+cd mern-ecommerce-project/
 cd web_admin
-npm install
 sudo rm -rf build
+npm install
 npm run build
 sudo pm2 delete react-admin || true
-pm2 serve build/ 3001 -f --name "react-admin" --spa
-sudo systemctl restart nginx
+sudo pm2 serve build/ 3001 -f --name "admin-server" --spa
+
+
+echo "******************************************"
+echo "-----Client-Admin run Successfully--------"
+echo "******************************************"
