@@ -55,6 +55,7 @@ jobs:
         run:  |-
           echo CLIENT_IP=${{needs.provision-infra.outputs.CLIENT_IP}} >> $GITHUB_ENV
 
+          
       # - name: SSH to Client-Admin in AZ1
       #   uses: appleboy/ssh-action@master
       #   with:
