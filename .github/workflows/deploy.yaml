@@ -40,7 +40,7 @@ jobs:
       
       - name: Set outputs
         id: set-ip
-        run:  |
+        run:  |-
           echo "::set-output name=client:$(terraform output client_admin_ip)"
         working-directory: ./
 
@@ -55,15 +55,15 @@ jobs:
         run:  |-
           echo CLIENT_IP=${{ needs.provision-infra.outputs.CLIENT_IP }} >> $GITHUB_ENV
 
-      - name: SSH to Client-Admin in AZ1
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ needs.provision-infra.outputs.CLIENT_IP }}
-          username: ubuntu
-          key: ${{ env.AWS_PRIVATE_KEY }}
-          envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
+      # - name: SSH to Client-Admin in AZ1
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ needs.provision-infra.outputs.CLIENT_IP }}
+      #     username: ubuntu
+      #     key: ${{ env.AWS_PRIVATE_KEY }}
+      #     envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
 
-      - name: Run client-admin script
-        run:  |
-          chmod +x client-admin.sh
-          ./client-admin.sh
+      # - name: Run client-admin script
+      #   run:  |
+      #     chmod +x client-admin.sh
+      #     ./client-admin.sh
