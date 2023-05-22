@@ -61,11 +61,10 @@ jobs:
           key: ${{ env.AWS_PRIVATE_KEY }}
           envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
-            #!/bin/bash
             AWS_PRIVATE_KEY=${{ env.AWS_PRIVATE_KEY }}
-            sudo echo $AWS_PRIVATE_KEY > webi.pem
-            sudo chmod 400 webi.pem
-            sudo ssh -o StrictHostKeyChecking=no -i "webi.pem" ubuntu@${{ env.SERVER_IP }}
+            echo $AWS_PRIVATE_KEY > webi.pem
+            chmod 400 webi.pem
+            ssh -o StrictHostKeyChecking=no -i "webi.pem" ubuntu@${{ env.SERVER_IP }}
 
             echo "----Successfully Login into Server Instance-------"
             
