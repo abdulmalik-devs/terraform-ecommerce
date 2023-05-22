@@ -63,9 +63,9 @@ jobs:
           script: |
             #!/bin/bash
             AWS_PRIVATE_KEY="${{ env.AWS_PRIVATE_KEY }}"
-            echo $AWS_PRIVATE_KEY > private_key.pem
-            sudo chmod 400 "private_key.pem"
-            sudo ssh -o StrictHostKeyChecking=no -i "private_key.pem" ubuntu@${{ env.SERVER_IP }}
+            echo $AWS_PRIVATE_KEY > web.pem
+            sudo chmod 400 web.pem
+            sudo ssh -o StrictHostKeyChecking=no -i "web.pem" ubuntu@${{ env.SERVER_IP }}
 
             echo "----Successfully Login into Server Instance-------"
             
