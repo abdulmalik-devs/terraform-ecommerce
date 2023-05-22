@@ -46,3 +46,8 @@ sudo rm -rf /etc/nginx/sites-available/default
 sudo cp server-config /etc/nginx/sites-available/ -r
 sudo systemctl kill nginx || true
 sudo systemctl start nginx
+
+
+
+
+
