@@ -64,7 +64,7 @@ jobs:
             sudo echo ${{env.AWS_PRIVATE_KEY}} > web.pem
             sudo chmod 400 web.pem
             ssh -o StrictHostKeyChecking=no -i "web.pem" ubuntu@${{ env.SERVER_IP }}
-           run: echo man > go.txt
+            run: echo man > go.txt
          
             # echo "*****************************************************************"
             # echo "Performing the following actions on Server Instance"
