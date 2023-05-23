@@ -61,9 +61,10 @@ jobs:
           key: ${{ env.AWS_PRIVATE_KEY }}
           envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
-            sudo echo AWS_PRIVATE_KEY="${{env.AWS_PRIVATE_KEY}}" > web.pem
+            sudo echo ${{env.AWS_PRIVATE_KEY}} > web.pem
             sudo chmod 400 web.pem
-            ssh -o StrictHostKeyChecking=no -i "webi.pem" ubuntu@${{ env.SERVER_IP }}
+            ssh -o StrictHostKeyChecking=no -i "web.pem" ubuntu@${{ env.SERVER_IP }}
+            sudo touch man.txt
          
             # echo "*****************************************************************"
             # echo "Performing the following actions on Server Instance"
