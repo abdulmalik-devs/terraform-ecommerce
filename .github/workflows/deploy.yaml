@@ -34,14 +34,14 @@ jobs:
         run: terraform plan
       - name: Terraform Apply
         run: terraform apply --auto-approve 
-      - name: Terraform Destroy
-        run: terraform destroy --auto-approve
-  #     - name: Set outputs
-  #       id: set-ip
-  #       run: |
-  #         echo "::set-output name=client::$(terraform output client_admin_ip)"
-  #         echo "::set-output name=server::$(terraform output server-ip)"
-  #       working-directory: ./
+      # - name: Terraform Destroy
+      #   run: terraform destroy --auto-approve
+      - name: Set outputs
+        id: set-ip
+        run: |
+          echo "::set-output name=client::$(terraform output client_admin_ip)"
+          echo "::set-output name=server::$(terraform output server-ip)"
+        working-directory: ./
 
   # deploy_to_server:
   #   runs-on: ubuntu-latest
