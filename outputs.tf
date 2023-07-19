@@ -3,7 +3,7 @@ output "client_admin_ip" {
   value = module.ec2_client_admin.instance_public_ip
 }
 
-output "server-ip" {
+output "server_ip" {
   description = "Public Ip Address of Server Instance"
   value = module.ec2_backend.instance_private_ip
 }
