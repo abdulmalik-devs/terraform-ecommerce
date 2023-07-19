@@ -20,7 +20,7 @@ npm -v
 node -v
 
 echo "-----PM2------"
-sudo npm install -g pm2
+sudo npm install -g pm2 -y
 sudo pm2 startup systemd
 
 echo "-----NGINX------"

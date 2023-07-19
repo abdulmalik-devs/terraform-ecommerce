@@ -53,19 +53,35 @@ jobs:
         run: |
           echo CLIENT_IP=${{ needs.provision-infra.outputs.CLIENT_IP }} >> $GITHUB_ENV
           echo SERVER_IP=${{ needs.provision-infra.outputs.SERVER_IP }} >> $GITHUB_ENV
-      - name: SSH to Server Instance
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.SERVER_IP }}
-          username: ubuntu
-          key: ${{ env.AWS_PRIVATE_KEY }}
-          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
-          script: |
-            echo "$AWS_PRIVATE_KEY" > access.pem
-            sudo chmod 400 acess.pem
-            ssh -o StrictHostKeyChecking=no -i "./web.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
-            echo "Hello, private instance!" > hello.txt
-            EOF
+
+      - name: Install SSH Key
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "StrictHostKeyChecking=no" >> ~/.ssh/config
+          echo "UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+          sudo apt-get install sshpass -y
+
+      - name: SSH to Client and then SSH to Server
+        run: |
+          ssh ubuntu@${{ needs.provision-infra.outputs.client_ip }} "ssh -i ./word.pem -o StrictHostKeyChecking=no ubuntu@${{ needs.provision-infra.outputs.server_ip }} 'nohup ./server.sh > output.log 2>&1 &'"
+
+
+
+      # - name: SSH to Server Instance
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ env.SERVER_IP }}
+      #     username: ubuntu
+      #     key: ${{ env.AWS_PRIVATE_KEY }}
+      #     envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
+      #     script: |
+      #       echo "$AWS_PRIVATE_KEY" > access.pem
+      #       sudo chmod 400 acess.pem
+      #       ssh -o StrictHostKeyChecking=no -i "./web.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
+      #       echo "Hello, private instance!" > hello.txt
+      #       EOF
          
   #           echo "*****************************************************************"
   #           echo "Performing the following actions on Server Instance"
