@@ -62,13 +62,13 @@ jobs:
           key: ${{ env.AWS_PRIVATE_KEY }}
           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
-            eval "$(ssh-agent -s)"
-            echo "$AWS_PRIVATE_KEY" | ssh-add -
-            echo "$AWS_PRIVATE_KEY" > access.pem
-            sudo chmod 400 access.pem
-            sudo ssh -o StrictHostKeyChecking=no -i "access.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
+            echo "*****SUCESSFULLY SSH INTO PUBLIC INSTNACE*******"
+            curl ifconfig.me
+            echo "$AWS_PRIVATE_KEY" > word.pem
+            sudo chmod 400 word.pem
+            sudo chmod 600 word.pem
+            sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }}
             echo "Hello, private instance!" > hello.txt
-            EOF
          
             # echo "*****************************************************************"
             # echo "Performing the following actions on Server Instance"
