@@ -64,9 +64,10 @@ jobs:
           script: |
             echo "*****SUCESSFULLY SSH INTO PUBLIC INSTNACE*******"
             sudo chmod 400 word.pem
-            sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }}
+            sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
             echo "*****SUCESSFULLY SSH INTO PRVATE INSTNACE*******"
             echo "Hello, private instance!" > hello.txt
+            EOF
          
             # echo "*****************************************************************"
             # echo "Performing the following actions on Server Instance"
