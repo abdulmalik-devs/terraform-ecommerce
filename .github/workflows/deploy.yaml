@@ -63,8 +63,6 @@ jobs:
           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
             echo "*****SUCESSFULLY SSH INTO PUBLIC INSTNACE*******"
-            sudo eval "$(ssh-agent -s)"
-            echo ${{ env.AWS_PRIVATE_KEY }} | ssh-add -
             echo ${{ env.AWS_PRIVATE_KEY }} > word.pem
             sudo chmod 400 word.pem
             sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }}
