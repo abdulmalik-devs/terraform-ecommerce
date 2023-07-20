@@ -67,16 +67,10 @@ jobs:
             sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
 
             echo "*****SUCESSFULLY SSH INTO PRVATE INSTNACE*******"
-
-            echo "*****************************************************************"
-            echo "Performing the following actions on Server Instance"
-            echo "*****************************************************************"         
+      
             sudo apt-get update
             sudo apt-get install git -y
 
-            echo "---------------------------------------------"
-            echo "--INSTALL NVM TO USE A SPECIFIC NODE VERSION--"
-            echo "----------------------------------------------"
             sudo apt-get install curl
             sudo curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
             export NVM_DIR="$HOME/.nvm"
@@ -101,9 +95,6 @@ jobs:
             sudo ufw allow 'Nginx Full'
             sudo ufw --force enable 
 
-            echo "******************************************"
-            echo "Performing the following actions for Server"
-            echo "******************************************" 
             sudo git clone https://github.com/abdulmalik-devs/mern-ecommerce-project.git
             cd mern-ecommerce-project/
             cd web_services/
