@@ -63,14 +63,11 @@ jobs:
           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
             echo "*****SUCESSFULLY SSH INTO PUBLIC INSTNACE*******"
-            sudo apt-get install curl -y
-            curl ifconfig.me
-            echo "$AWS_PRIVATE_KEY" > word.pem
+            sudo eval "$(ssh-agent -s)"
+            echo ${{ env.AWS_PRIVATE_KEY }} | ssh-add -
+            echo ${{ env.AWS_PRIVATE_KEY }} > word.pem
             sudo chmod 400 word.pem
-            sudo chmod 600 word.pem
             sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }}
-            sudo apt-get install curl -y
-            curl ifconfig.me
             echo "*****SUCESSFULLY SSH INTO PRVATE INSTNACE*******"
             echo "Hello, private instance!" > hello.txt
          
