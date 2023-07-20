@@ -65,81 +65,84 @@ jobs:
             echo "*****SUCESSFULLY SSH INTO PUBLIC INSTNACE*******"
             sudo chmod 400 word.pem
             sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
+
             echo "*****SUCESSFULLY SSH INTO PRVATE INSTNACE*******"
-            echo "Hello, private instance!" > hello.txt
+
+            echo "*****************************************************************"
+            echo "Performing the following actions on Server Instance"
+            echo "*****************************************************************         
+            sudo apt-get update
+            sudo apt-get install git -y
+
+            echo "---------------------------------------------"
+            echo "--INSTALL NVM TO USE A SPECIFIC NODE VERSION--"
+            echo "----------------------------------------------"
+            sudo apt-get install curl
+            sudo curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+            nvm install 18
+            sudo apt-get install npm -y
+            nvm alias default 18
+            npm -v
+            node -v
+
+            echo "-----PM2------"
+            sudo npm install -g pm2 -y
+            sudo pm2 startup systemd
+
+            echo "-----NGINX------"
+            sudo apt-get install -y nginx
+
+            echo "---FIREWALL---"
+            sudo ufw allow OpenSSH
+            sudo ufw allow 'Nginx Full'
+            sudo ufw --force enable 
+
+            echo "******************************************"
+            echo "Performing the following actions for Server"
+            echo "******************************************" 
+            sudo git clone https://github.com/abdulmalik-devs/mern-ecommerce-project.git
+            cd mern-ecommerce-project/
+            cd web_services/
+            npm install
+            sudo pm2 delete backend || true
+
+            # Create a new Nginx site configuration file
+            sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
+            server {
+                listen 80 default_server;
+                server_name _;  # Replace with your actual domain or IP address
+
+                location / {
+                    proxy_pass http://localhost:5002/api/;
+                }
+            }
+            EOF
+
+            # Remove the default Nginx site configuration file
+            sudo rm -rf /etc/nginx/sites-enabled/default
+
+            # Create a symbolic link to enable the new site configuration
+            sudo ln -s /etc/nginx/sites-available/myapp.conf /etc/nginx/sites-enabled/
+
+            # Test the Nginx configuration for any syntax errors
+            sudo nginx -t
+
+            # Restart Nginx to apply the new configuration
+            sudo systemctl restart nginx
+
+            sudo pm2 start index.js --name "backend" --spa
+
+            echo "******************************************"
+            echo "-----Server run Successfully--------"
+            echo "*******************************************
+
             EOF
          
-            # echo "*****************************************************************"
-            # echo "Performing the following actions on Server Instance"
-            # echo "*****************************************************************         
-            # sudo apt-get update
-            # sudo apt-get install git -y
-
-            # echo "---------------------------------------------"
-            # echo "--INSTALL NVM TO USE A SPECIFIC NODE VERSION--"
-            # echo "----------------------------------------------"
-            # sudo apt-get install curl
-            # sudo curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-            # export NVM_DIR="$HOME/.nvm"
-            # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
-            # [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-            # nvm install 18
-            # sudo apt-get install npm -y
-            # nvm alias default 18
-            # npm -v
-            # node -v
-
-            # echo "-----PM2------"
-            # sudo npm install -g pm2
-            # sudo pm2 startup systemd
-
-            # echo "-----NGINX------"
-            # sudo apt-get install -y nginx
-
-            # echo "---FIREWALL---"
-            # sudo ufw allow OpenSSH
-            # sudo ufw allow 'Nginx Full'
-            # sudo ufw --force enable 
-
-            # echo "******************************************"
-            # echo "Performing the following actions for Server"
-            # echo "******************************************" 
-            # sudo git clone https://github.com/abdulmalik-devs/mern-ecommerce-project.git
-            # sudo cd mern-ecommerce-project/
-            # sudo cd web_services/
-            # sudo npm install
-            # sudo pm2 delete backend || true
-
-            # # Create a new Nginx site configuration file
-            # sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
-            # server {
-            #     listen 80 default_server;
-            #     server_name _;  # Replace with your actual domain or IP address
-
-            #     location / {
-            #         proxy_pass http://localhost:5002/api/;
-            #     }
-            # }
-            # EOF
-
-            # # Remove the default Nginx site configuration file
-            # sudo rm -rf /etc/nginx/sites-enabled/default
-
-            # # Create a symbolic link to enable the new site configuration
-            # sudo ln -s /etc/nginx/sites-available/myapp.conf /etc/nginx/sites-enabled/
-
-            # # Test the Nginx configuration for any syntax errors
-            # sudo nginx -t
-
-            # # Restart Nginx to apply the new configuration
-            # sudo systemctl restart nginx
-
-            # sudo pm2 start index.js --name "backend" --spa
-
-            # echo "******************************************"
-            # echo "-----Server run Successfully--------"
-            # echo "*******************************************
+            
 
   # deploy_to_client:
   #   runs-on: ubuntu-latest
