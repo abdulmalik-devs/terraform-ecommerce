@@ -62,6 +62,8 @@ jobs:
           key: ${{ env.AWS_PRIVATE_KEY }}
           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
+            eval "$(ssh-agent -s)"
+            echo "$AWS_PRIVATE_KEY" | ssh-add -
             echo "$AWS_PRIVATE_KEY" > access.pem
             sudo chmod 400 access.pem
             sudo ssh -o StrictHostKeyChecking=no -i "access.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
