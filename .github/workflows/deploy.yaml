@@ -70,7 +70,7 @@ jobs:
 
             echo "*****************************************************************"
             echo "Performing the following actions on Server Instance"
-            echo "*****************************************************************         
+            echo "*****************************************************************"         
             sudo apt-get update
             sudo apt-get install git -y
 
