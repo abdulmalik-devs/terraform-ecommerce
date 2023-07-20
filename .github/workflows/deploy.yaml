@@ -23,12 +23,12 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_wrapper: false
-      # - name: Format Terraform code
-      #   id: format
-      #   run: terraform fmt
-      # - name: Terraform Init
-      #   id: init
-      #   run: terraform init
+      - name: Format Terraform code
+        id: format
+        run: terraform fmt
+      - name: Terraform Init
+        id: init
+        run: terraform init
       # - name: Terraform Plan
       #   id: plan
       #   run: terraform plan
