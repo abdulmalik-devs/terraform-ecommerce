@@ -67,7 +67,8 @@ jobs:
             echo "----------------------------------------------------"
             echo "Performing the following actions on Server Instance"
             echo "----------------------------------------------------"
-
+            pwd
+            ls
             sudo apt-get update
             # sudo apt-get install git -y
             # sudo apt-get install curl -y
