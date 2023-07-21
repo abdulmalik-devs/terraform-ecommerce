@@ -79,14 +79,15 @@ jobs:
             npm -v
             node -v
             echo "-----PM2------"
-            sudo npm install -g pm2
-            sudo pm2 startup systemd
+            npm install -g pm2
+            pm2 startup systemd
             echo "-----NGINX------"
             sudo apt-get install nginx
             echo "---FIREWALL---"
             sudo ufw allow OpenSSH
             sudo ufw allow 'Nginx Full'
-            sudo ufw --force enable 
+            sudo ufw --force enable
+            pwd 
             sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
             server {
                 listen 80 default_server;
@@ -96,6 +97,7 @@ jobs:
                 }
             }
             EOF
+            pwd
             sudo rm -rf /etc/nginx/sites-enabled/default
             sudo ln -s /etc/nginx/sites-available/myapp.conf /etc/nginx/sites-enabled/
             sudo nginx -t
@@ -105,7 +107,7 @@ jobs:
             echo "-----Server run Successfully--------"
             echo "******************************************"
             EOF
-      
+
             
 
   # deploy_to_client:
