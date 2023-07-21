@@ -99,7 +99,6 @@ jobs:
             cd mern-ecommerce-project/
             cd web_services/
             npm install
-            sudo pm2 delete backend || true
 
             # Create a new Nginx site configuration file
             sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
