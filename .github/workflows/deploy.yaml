@@ -62,12 +62,12 @@ jobs:
           key: ${{ env.AWS_PRIVATE_KEY }}
           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
-            echo "*****SUCESSFULLY SSH INTO PUBLIC INSTNACE*******"
+            echo "*****SUCESSFULLY SSH INTO PUBLIC INSTANCE*******"
             sudo chmod 400 word.pem
             sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
 
-            echo "*****SUCESSFULLY SSH INTO PRVATE INSTNACE*******"
-      
+            echo "*****SUCESSFULLY SSH INTO PRIVATE INSTANCE*******"
+            
             sudo apt-get update
             sudo apt-get install git -y
 
@@ -95,10 +95,10 @@ jobs:
             sudo ufw allow 'Nginx Full'
             sudo ufw --force enable 
 
-            sudo git clone https://github.com/abdulmalik-devs/mern-ecommerce-project.git
-            cd mern-ecommerce-project/
-            cd web_services/
-            npm install
+            # sudo git clone https://github.com/abdulmalik-devs/mern-ecommerce-project.git
+            # cd mern-ecommerce-project/
+            # cd web_services/
+            # npm install
 
             # Create a new Nginx site configuration file
             sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
@@ -128,7 +128,7 @@ jobs:
 
             echo "******************************************"
             echo "-----Server run Successfully--------"
-            echo "*******************************************
+            echo "******************************************"
 
             EOF
          
