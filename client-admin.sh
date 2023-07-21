@@ -1,26 +1,26 @@
 #!/bin/bash
-echo "*****************************************************************"
-echo "Performing the following actions on Client-Admin Instance in AZ1"
-echo "*****************************************************************"
+
+echo "----------------------------------------------------------"
+echo "Performing the following actions on Client-Admin Instance"
+echo "----------------------------------------------------------"
 
 sudo apt-get update
 sudo apt-get install git -y
+sudo apt-get install curl -y
 
-sudo apt-get install curl
+echo "-----NPM------"
 sudo curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-nvm install 18
+nvm install 18 -y
 sudo apt-get install npm -y
 nvm alias default 18
 npm -v
 node -v
 
 echo "-----PM2------"
-sudo npm install -g pm2
-sudo pm2 startup systemd
+sudo npm install -g pm2 -y
 
 echo "-----NGINX------"
 sudo apt-get install -y nginx
@@ -30,16 +30,15 @@ sudo ufw allow OpenSSH
 sudo ufw allow 'Nginx Full'
 sudo ufw --force enable 
 
-echo "******************************************"
+echo "--------------------------------------------"
 echo "Performing the following actions for Client"
-echo "******************************************"
+echo "--------------------------------------------"
 
-sudo git clone https://github.com/abdulmalik-devs/mern-ecommerce-project.git
-cd mern-ecommerce-project/web_panel
-sudo rm -rf build
+cd ./application/client
+echo "REACT_APP_API_BASEURL=http://${{ env.SERVER_IP }}" | sudo tee .env > /dev/null
 sudo npm install
-sudo npm run build
-pm2 serve build/ 3000 --name "client-server"
+
+echo "---------Nginx Configration---------------"
 
 sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
 server {
@@ -47,31 +46,34 @@ server {
     server_name _;  
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3000/;
     }
 
-    location /admin {
-        proxy_pass http://localhost:3001;
+    location /admin/ {
+        proxy_pass http://localhost:3001/;
     }
 }
 EOF
 
-sudo rm -f /etc/nginx/sites-enabled/default
+sudo rm -r /etc/nginx/sites-enabled/default
 sudo ln -s /etc/nginx/sites-available/myapp.conf /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 
-echo "******************************************"
-echo "Performing the following actions for Admin"
-echo "******************************************"
+echo "-------Starting the client----------"
+npm run build
+pm2 serve build/ 3000 --name "client"
 
+echo "-------------------------------------------"
+echo "Performing the following actions for Admin"
+echo "-------------------------------------------"
 cd /home/ubuntu
-cd mern-ecommerce-project/web_admin
-sudo npm install
-sudo npm run build
+cd ./application/admin
+echo "REACT_APP_API_BASEURL=http://${{ env.SERVER_IP }}" | sudo tee .env > /dev/null
+npm install
+npm run build
 sudo pm2 serve build/ 3001 --name "admin-server"
 
-
-echo "******************************************"
-echo "-----Client-Admin run Successfully--------"
-echo "******************************************"
+echo "------------------------------------------"
+echo "-----Script Completed Successfully--------"
+echo "------------------------------------------"

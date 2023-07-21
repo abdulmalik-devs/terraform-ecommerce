@@ -63,49 +63,65 @@ jobs:
           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
             echo "*****SUCCESSFULLY SSH INTO PUBLIC INSTANCE*******"
+            echo "${{ env.AWS_PRIVATE_KEY }}" > word.pem
             sudo chmod 400 word.pem
             sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
-            echo "*****SUCCESSFULLY SSH INTO PRIVATE INSTANCE*******"
+            echo "----------------------------------------------------"
+            echo "Performing the following actions on Server Instance"
+            echo "----------------------------------------------------"
+
             sudo apt-get update
             sudo apt-get install git -y
             sudo apt-get install curl -y
-            curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-            export NVM_DIR=\"$HOME/.nvm\"
-            [ -s \"$NVM_DIR/nvm.sh\" ] && source \"$NVM_DIR/nvm.sh\"  
-            [ -s \"$NVM_DIR/bash_completion\" ] && source \"$NVM_DIR/bash_completion\"
+
+            echo "-----NPM------"
+
+            sudo curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
             nvm install 18
             sudo apt-get install npm -y
             nvm alias default 18
             npm -v
             node -v
+
             echo "-----PM2------"
-            npm install -g pm2
-            pm2 startup systemd
+            sudo npm install -g pm2 -y
+
             echo "-----NGINX------"
-            sudo apt-get install nginx
+            sudo apt-get install -y nginx
+
             echo "---FIREWALL---"
             sudo ufw allow OpenSSH
             sudo ufw allow 'Nginx Full'
-            sudo ufw --force enable
-            pwd 
+            sudo ufw --force enable 
+
+
+            echo "---------Nginx Configration---------------"
+
+            cd ./application/server
+            sudo npm install
             sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
             server {
                 listen 80 default_server;
-                server_name _;  # Replace with your actual domain or IP address
+                server_name _;  
+
                 location / {
-                   proxy_pass http://localhost:5002/api/;
+                    proxy_pass http://localhost:5002/api/;
                 }
             }
             EOF
-            pwd
-            sudo rm -rf /etc/nginx/sites-enabled/default
-            sudo ln -s /etc/nginx/sites-available/myapp.conf /etc/nginx/sites-enabled/
+
+            sudo rm -r /etc/nginx/sites-enabled/default
+            sudo ln -s /etc/nginx/sites-available/myapp.conf /etc/nginx/sites-enabled
             sudo nginx -t
             sudo systemctl restart nginx
-            sudo pm2 start index.js --name "backend" --spa
-            echo "******************************************"
-            echo "-----Server run Successfully--------"
-            echo "******************************************"
+            echo "-------The configuration is completed successfully------"
+
+            echo "-------Starting the server----------"
+            sudo pm2 start index.js --name "backend-server"
             EOF
 
             
@@ -128,86 +144,83 @@ jobs:
   #         key: ${{ env.AWS_PRIVATE_KEY }}
   #         envs: PRIVATE_SSH_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
   #         script: |
-  #           AWS_PRIVATE_KEY=${{ env.AWS_PRIVATE_KEY }}
-  #           echo $AWS_PRIVATE_KEY > webi.pem
-  #           chmod 400 webi.pem
-  #           ssh -o StrictHostKeyChecking=no -i "webi.pem" ubuntu@${{ env.SERVER_IP }}
-
-  #           echo "----Successfully Login into Server Instance-------"
+  #           echo "----------------------------------------------------------"
+  #           echo "Performing the following actions on Client-Admin Instance"
+  #           echo "----------------------------------------------------------"
             
-  #           echo "*****************************************************************"
-  #           echo "Performing the following actions on Server Instance"
-  #           echo "*****************************************************************         
   #           sudo apt-get update
   #           sudo apt-get install git -y
-
-  #           echo "---------------------------------------------"
-  #           echo "--INSTALL NVM TO USE A SPECIFIC NODE VERSION--"
-  #           echo "----------------------------------------------"
-  #           sudo apt-get install curl
+  #           sudo apt-get install curl -y
+            
+  #           echo "-----NPM------"
   #           sudo curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
   #           export NVM_DIR="$HOME/.nvm"
   #           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
   #           [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-  #           nvm install 18
+  #           nvm install 18 -y
   #           sudo apt-get install npm -y
   #           nvm alias default 18
   #           npm -v
   #           node -v
-
+            
   #           echo "-----PM2------"
-  #           sudo npm install -g pm2
-  #           sudo pm2 startup systemd
-
+  #           sudo npm install -g pm2 -y
+            
   #           echo "-----NGINX------"
   #           sudo apt-get install -y nginx
-
+            
   #           echo "---FIREWALL---"
   #           sudo ufw allow OpenSSH
   #           sudo ufw allow 'Nginx Full'
   #           sudo ufw --force enable 
-
-  #           echo "******************************************"
-  #           echo "Performing the following actions for Server"
-  #           echo "******************************************" 
-  #           sudo git clone https://github.com/abdulmalik-devs/mern-ecommerce-project.git
-  #           sudo cd mern-ecommerce-project/
-  #           sudo cd web_services/
+            
+  #           echo "--------------------------------------------"
+  #           echo "Performing the following actions for Client"
+  #           echo "--------------------------------------------"
+            
+  #           cd ./application/client
+  #           echo "REACT_APP_API_BASEURL=http://${{ env.SERVER_IP }}" | sudo tee .env > /dev/null
   #           sudo npm install
-  #           sudo pm2 delete backend || true
-
-  #           # Create a new Nginx site configuration file
+            
+  #           echo "---------Nginx Configration---------------"
+            
   #           sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
   #           server {
   #               listen 80 default_server;
-  #               server_name _;  # Replace with your actual domain or IP address
-
+  #               server_name _;  
+            
   #               location / {
-  #                   proxy_pass http://localhost:5002/api/;
+  #                   proxy_pass http://localhost:3000/;
+  #               }
+            
+  #               location /admin/ {
+  #                   proxy_pass http://localhost:3001/;
   #               }
   #           }
   #           EOF
-
-  #           # Remove the default Nginx site configuration file
-  #           sudo rm -rf /etc/nginx/sites-enabled/default
-
-  #           # Create a symbolic link to enable the new site configuration
+            
+  #           sudo rm -r /etc/nginx/sites-enabled/default
   #           sudo ln -s /etc/nginx/sites-available/myapp.conf /etc/nginx/sites-enabled/
-
-  #           # Test the Nginx configuration for any syntax errors
   #           sudo nginx -t
-
-  #           # Restart Nginx to apply the new configuration
   #           sudo systemctl restart nginx
-
-  #           sudo pm2 start index.js --name "backend" --spa
-
-  #           echo "******************************************"
-  #           echo "-----Server run Successfully--------"
-  # #           echo "***************************************
-
-
+            
+  #           echo "-------Starting the client----------"
+  #           npm run build
+  #           pm2 serve build/ 3000 --name "client"
+            
+  #           echo "-------------------------------------------"
+  #           echo "Performing the following actions for Admin"
+  #           echo "-------------------------------------------"
+  #           cd /home/ubuntu
+  #           cd ./application/admin
+  #           echo "REACT_APP_API_BASEURL=http://${{ env.SERVER_IP }}" | sudo tee .env > /dev/null
+  #           npm install
+  #           npm run build
+  #           sudo pm2 serve build/ 3001 --name "admin-server"
+            
+  #           echo "------------------------------------------"
+  #           echo "-----Script Completed Successfully--------"
+  #           echo "------------------------------------------"
 
 
 
