@@ -29,100 +29,100 @@ jobs:
       - name: Terraform Init
         id: init
         run: terraform init
-      # - name: Terraform Plan
-      #   id: plan
-      #   run: terraform plan
-      # - name: Terraform Apply
-      #   run: terraform apply --auto-approve 
-      - name: Terraform Destroy
-        run: terraform destroy --auto-approve
-  #     - name: Set outputs
-  #       id: set-ip
-  #       run: |
-  #         echo "::set-output name=client::$(terraform output client_admin_ip)"
-  #         echo "::set-output name=server::$(terraform output server_ip)"
-  #       working-directory: ./
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan
+      - name: Terraform Apply
+        run: terraform apply --auto-approve 
+      # - name: Terraform Destroy
+      #   run: terraform destroy --auto-approve
+      - name: Set outputs
+        id: set-ip
+        run: |
+          echo "::set-output name=client::$(terraform output client_admin_ip)"
+          echo "::set-output name=server::$(terraform output server_ip)"
+        working-directory: ./
 
-  # deploy_to_server:
-  #   runs-on: ubuntu-latest
-  #   needs: provision-infra
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
-  #     - name: Set IP env variable
-  #       run: |
-  #         echo CLIENT_IP=${{ needs.provision-infra.outputs.CLIENT_IP }} >> $GITHUB_ENV
-  #         echo SERVER_IP=${{ needs.provision-infra.outputs.SERVER_IP }} >> $GITHUB_ENV
+  deploy_to_server:
+    runs-on: ubuntu-latest
+    needs: provision-infra
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set IP env variable
+        run: |
+          echo CLIENT_IP=${{ needs.provision-infra.outputs.CLIENT_IP }} >> $GITHUB_ENV
+          echo SERVER_IP=${{ needs.provision-infra.outputs.SERVER_IP }} >> $GITHUB_ENV
 
-  #     - name: SSH to Server Instance
-  #       uses: appleboy/ssh-action@master
-  #       with:
-  #         host: ${{ env.CLIENT_IP }}
-  #         username: ubuntu
-  #         key: ${{ env.AWS_PRIVATE_KEY }}
-  #         envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
-  #         script: |
-  #           echo "*****SUCCESSFULLY SSH INTO PUBLIC INSTANCE*******"
-  #           echo "${{ env.AWS_PRIVATE_KEY }}" > word.pem
-  #           sudo chmod 400 word.pem
-  #           sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
-  #           echo "----------------------------------------------------"
-  #           echo "Performing the following actions on Server Instance"
-  #           echo "----------------------------------------------------"
+      - name: SSH to Server Instance
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.CLIENT_IP }}
+          username: ubuntu
+          key: ${{ env.AWS_PRIVATE_KEY }}
+          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
+          script: |
+            echo "*****SUCCESSFULLY SSH INTO PUBLIC INSTANCE*******"
+            echo "${{ env.AWS_PRIVATE_KEY }}" > word.pem
+            sudo chmod 400 word.pem
+            sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
+            echo "----------------------------------------------------"
+            echo "Performing the following actions on Server Instance"
+            echo "----------------------------------------------------"
 
-  #           sudo apt-get update
-  #           sudo apt-get install git -y
-  #           sudo apt-get install curl -y
+            sudo apt-get update
+            sudo apt-get install git -y
+            sudo apt-get install curl -y
 
-  #           echo "-----NPM------"
+            echo "-----NPM------"
 
-  #           sudo curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-  #           export NVM_DIR="$HOME/.nvm"
-  #           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
-  #           [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            sudo curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-  #           nvm install 18
-  #           sudo apt-get install npm -y
-  #           nvm alias default 18
-  #           npm -v
-  #           node -v
+            nvm install 18
+            sudo apt-get install npm -y
+            nvm alias default 18
+            npm -v
+            node -v
 
-  #           echo "-----PM2------"
-  #           sudo npm install -g pm2 -y
+            echo "-----PM2------"
+            sudo npm install -g pm2 -y
 
-  #           echo "-----NGINX------"
-  #           sudo apt-get install -y nginx
+            echo "-----NGINX------"
+            sudo apt-get install -y nginx
 
-  #           echo "---FIREWALL---"
-  #           sudo ufw allow OpenSSH
-  #           sudo ufw allow 'Nginx Full'
-  #           sudo ufw --force enable 
+            echo "---FIREWALL---"
+            sudo ufw allow OpenSSH
+            sudo ufw allow 'Nginx Full'
+            sudo ufw --force enable 
 
 
-  #           echo "---------Nginx Configration---------------"
+            echo "---------Nginx Configration---------------"
 
-  #           cd ./application/server
-  #           sudo npm install
-  #           sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
-  #           server {
-  #               listen 80 default_server;
-  #               server_name _;  
+            cd ./application/server
+            sudo npm install
+            sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<EOF
+            server {
+                listen 80 default_server;
+                server_name _;  
 
-  #               location / {
-  #                   proxy_pass http://localhost:5002/api/;
-  #               }
-  #           }
-  #           EOF
+                location / {
+                    proxy_pass http://localhost:5002/api/;
+                }
+            }
+            EOF
 
-  #           sudo rm -r /etc/nginx/sites-enabled/default
-  #           sudo ln -s /etc/nginx/sites-available/myapp.conf /etc/nginx/sites-enabled
-  #           sudo nginx -t
-  #           sudo systemctl restart nginx
-  #           echo "-------The configuration is completed successfully------"
+            sudo rm -r /etc/nginx/sites-enabled/default
+            sudo ln -s /etc/nginx/sites-available/myapp.conf /etc/nginx/sites-enabled
+            sudo nginx -t
+            sudo systemctl restart nginx
+            echo "-------The configuration is completed successfully------"
 
-  #           echo "-------Starting the server----------"
-  #           sudo pm2 start index.js --name "backend-server"
-  #           EOF
+            echo "-------Starting the server----------"
+            sudo pm2 start index.js --name "backend-server"
+            EOF
 
             
 
