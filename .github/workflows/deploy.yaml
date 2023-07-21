@@ -63,12 +63,17 @@ jobs:
             echo "*****SUCCESSFULLY SSH INTO PUBLIC INSTANCE*******"
             echo ${{ env.AWS_PRIVATE_KEY }} > word.pem
             sudo chmod 400 word.pem
-            sudo ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
+            pwd
+            ls -al
+            ssh -o StrictHostKeyChecking=no -i "word.pem" ubuntu@${{ env.SERVER_IP }} "bash -s" << EOF
+            echo "hello private" > hello.txt
+            pwd
+            ls -al
             echo "----------------------------------------------------"
             echo "Performing the following actions on Server Instance"
             echo "----------------------------------------------------"
             pwd
-            ls
+            ls -al
             sudo apt-get update
             # sudo apt-get install git -y
             # sudo apt-get install curl -y
